@@ -1,4 +1,4 @@
-identity = 'http://fault.io/src/control.sectors'
+identity = 'http://fault.io/src/python/sectors'
 name = 'sectors'
 abstract = 'Process management daemon for monitoring and controlling a set of services'
 icon = '🌪'
