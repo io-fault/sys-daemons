@@ -55,5 +55,5 @@ def test_Service(test):
 
 if __name__ == '__main__':
 	import sys
-	from fault.development import libtest
+	from ...development import libtest
 	libtest.execute(sys.modules[__name__])

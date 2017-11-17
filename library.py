@@ -40,11 +40,11 @@ import functools
 import itertools
 import typing
 
-from fault.system import library as libsys
-from fault.routes import library as libroutes
-from fault.chronometry import library as libtime
-from fault.web import library as libweb
-from fault.io import library as libio
+from ..system import library as libsys
+from ..routes import library as libroutes
+from ..chronometry import library as libtime
+from ..web import library as libweb
+from ..io import library as libio
 
 from . import core
 

@@ -8,7 +8,7 @@
 import os
 import sys
 
-from fault.routes import library as libroutes
+from ...routes import library as libroutes
 from .. import core
 
 def command_create(srv, *params):
