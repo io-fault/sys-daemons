@@ -42,7 +42,7 @@ import typing
 
 from ..system import library as libsys
 from ..routes import library as libroutes
-from ..chronometry import library as libtime
+from ..time import library as libtime
 from ..web import library as libweb
 from ..io import library as libio
 

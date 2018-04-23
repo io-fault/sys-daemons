@@ -46,7 +46,7 @@ import os
 import sys
 import itertools
 
-from ..chronometry import library as libtime
+from ..time import library as libtime
 from ..routes import library as libroutes
 from ..system import xml as system_xml
 
