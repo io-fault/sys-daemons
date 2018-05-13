@@ -1,13 +1,21 @@
-/source/
-	`http://fault.io/src/python/sectors`
+! CONTEXT:
+	/protocol/
+		&<http://if.fault.io/project>
+
+/identifier/
+	`http://fault.io/python/sectors`
 /name/
 	`sectors`
+/abstract/
+	Process management daemon
 /icon/
 	`🌪`
+
 /versioning/
 	continuous
 /status/
 	flux
+
 /controller/
 	fault.io
 /contact/
