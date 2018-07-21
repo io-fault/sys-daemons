@@ -41,7 +41,7 @@ import itertools
 import typing
 
 from ..system import library as libsys
-from ..routes import library as libroutes
+from ..system.files import Path
 from ..time import library as libtime
 from ..web import library as libweb
 from ..io import library as libio
@@ -506,7 +506,7 @@ class Set(libio.Context):
 		# This is performed in actuate because it is desirable
 		# to trigger a &libsys.Panic when an exception occurs.
 		"""
-		self.route = libroutes.File.from_cwd()
+		self.route = Path.from_cwd()
 		self.services = {} # name :> ManagedService() instances
 		self.managed = {} # the ServiceManager instances dispatched in io://faultd/bin/
 		self.root = None

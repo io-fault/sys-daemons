@@ -5,39 +5,39 @@
 
 # [ Properties ]
 
-# /environment
+# /environment/
 	# The environment variable that will be referenced in order
 	# to identify the default service directory override.
 
-# /default_route
-	# A &routes.library.File instance pointing to the default route
+# /default_route/
+	# A &Path instance pointing to the default route
 	# relative to the user's home directory. (~/.fault)
 
 # [ Service Types ]
 
 # The types of services that are managed by a faultd instance.
 
-# /daemon
+# /daemon/
 	# An invocation that is expected to maintain its running state.
 
-# /sectors
+# /sectors/
 	# A daemon that is specialized for fault.io sectord executions.
 	# This includes &.libroot processes.
 
-# /command
+# /command/
 	# Exclusive command execution; guarantees that only a configured
 	# number of invocations can be running at a given moment.
 
-# /processor
+# /processor/
 	# A variant of &command where faultd maintains a set of invocations
 	# where they are expected to exit when their allotted duration
 	# has expired.
 
-# /root
+# /root/
 	# Service representation of the faultd instance. Provides
 	# global environment configuration.
 
-# /unspecified
+# /unspecified/
 	# Placeholder type used when a created service has not been given
 	# a type. Unspecified services may be removed arbitrarily.
 """
@@ -47,7 +47,7 @@ import sys
 import itertools
 
 from ..time import library as libtime
-from ..routes import library as libroutes
+from ..system.files import Path
 from ..system import xml as system_xml
 
 types = set((
@@ -60,24 +60,22 @@ types = set((
 ))
 
 environment = 'FAULT_DAEMON_DIRECTORY'
-default_route = libroutes.File.home() / '.fault' / 'rootd'
+default_route = Path.home() / '.fault' / 'rootd'
 
 def identify_route(override=None):
 	"""
 	# Return the service directory route.
 	"""
 
-	global libroutes
-
 	if override is not None:
-		return libroutes.File.from_path(override)
+		return Path.from_path(override)
 
 	env = os.environ.get(environment)
 
 	if env is None:
 		return default_route
 
-	return libroutes.File.from_path(env)
+	return Path.from_path(env)
 
 def service_routes(route=default_route):
 	"""
@@ -177,7 +175,7 @@ class Service(object):
 
 		self.route.void()
 
-	def __init__(self, route:libroutes.File, identifier:str, type='unspecified'):
+	def __init__(self, route:Path, identifier:str, type='unspecified'):
 		"""
 		# Initialize the Service structure selecting the &route as its
 		# storage location. The &route may not exist upon instantiation
@@ -337,7 +335,6 @@ class Service(object):
 				self.__dict__[k] = v
 
 	def store_invocation(self):
-		global system_xml
 		xml = b''.join(system_xml.Execute.serialize(self.parts))
 		inv_r = self.route / "if" / "invocation.xml"
 		inv_r.store(xml)

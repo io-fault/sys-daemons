@@ -8,7 +8,7 @@
 import os
 import sys
 
-from ...routes import library as libroutes
+from ...system.files import Path
 from .. import core
 
 def command_create(srv, *params):
@@ -208,10 +208,10 @@ def main(*args, fiod=None):
 			dsrc = 'default'
 		else:
 			# from env
-			fiod = libroutes.File.from_absolute(fiod)
+			fiod = Path.from_absolute(fiod)
 			dsrc = 'environment'
 	else:
-		fiod = libroutes.File.from_absolute(fiod)
+		fiod = Path.from_absolute(fiod)
 		dsrc = 'parameter'
 
 	if not args:

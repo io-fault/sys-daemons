@@ -2,7 +2,7 @@ import sys
 from .. import core as module
 
 def test_service_routes(test):
-	tr = test.exits.enter_context(module.libroutes.File.temporary())
+	tr = test.exits.enter_context(module.Path.temporary())
 	for i in range(12):
 		sr = tr / ('s'+str(i))
 		sr.init("directory")
@@ -13,7 +13,7 @@ def test_service_routes(test):
 		test/(bn in s) == True
 
 def test_Service(test):
-	tr = test.exits.enter_context(module.libroutes.File.temporary())
+	tr = test.exits.enter_context(module.Path.temporary())
 	# create, store/load and check empty
 
 	srv = module.Service(tr, "test-service")
