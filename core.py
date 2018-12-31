@@ -131,7 +131,7 @@ class Service(object):
 
 	def libexec(self, recreate=False, root=None):
 		"""
-		Return the path to a hardlink for the service. Create if absent.
+		# Return the path to a hardlink for the service. Create if absent.
 		"""
 
 		r = self.route
