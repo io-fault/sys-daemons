@@ -40,7 +40,7 @@ import functools
 import itertools
 import typing
 
-from ..system import library as libsys
+from ..system import execution as libexec
 from ..system.files import Path
 from ..time import library as libtime
 from ..web import library as libweb
@@ -467,7 +467,7 @@ class ServiceManager(libio.Processor):
 
 		env['SERVICE_NAME'] = service.identifier
 
-		ki = libsys.KInvocation(*command_def, environ=env, set_process_group=True)
+		ki = libexec.KInvocation(*command_def, environ=env, set_process_group=True)
 		self.invocation = ki
 
 	def terminate(self, by=None):
@@ -504,7 +504,7 @@ class Set(libio.Context):
 		"""
 		# Create the faultd context if it does not exist.
 		# This is performed in actuate because it is desirable
-		# to trigger a &libsys.Panic when an exception occurs.
+		# to trigger a &system.process.Panic when an exception occurs.
 		"""
 		self.route = Path.from_cwd()
 		self.services = {} # name :> ManagedService() instances
@@ -519,7 +519,7 @@ class Set(libio.Context):
 		srv.prepare()
 		srv.load()
 
-		srv.pid = libsys.current_process_id
+		srv.pid = os.getpid()
 		srv.store_pid()
 		self.root = srv
 		srv.critical("starting root daemon")
