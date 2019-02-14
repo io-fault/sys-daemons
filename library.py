@@ -44,7 +44,7 @@ from ..system import execution as libexec
 from ..system.files import Path
 from ..time import library as libtime
 from ..web import library as libweb
-from ..io import library as libio
+from ..kernel import library as libkernel
 
 from . import core
 
@@ -293,7 +293,7 @@ class Commands(libweb.Index):
 		service = self.services[name]
 		return service.interfaces
 
-class ServiceManager(libio.Processor):
+class ServiceManager(libkernel.Processor):
 	"""
 	# Service daemon state and interface.
 
@@ -389,7 +389,7 @@ class ServiceManager(libio.Processor):
 			fd = os.open(self.critical, os.O_APPEND|os.O_WRONLY|os.O_CREAT)
 
 			pid = self.context.daemon_stderr(fd, self.invocation)
-			sub = self.subprocess = libio.Subprocess(pid)
+			sub = self.subprocess = libkernel.Subprocess(pid)
 
 			sector.dispatch(sub)
 			sub.atexit(self.sm_service_exit)
@@ -483,7 +483,7 @@ class ServiceManager(libio.Processor):
 # A given group has a set of configured interfaces; these interfaces
 # are allocated by the parent process as they're configured.
 
-class Set(libio.Context):
+class Set(libkernel.Context):
 	"""
 	# The (io/path)`/control` sector of the root daemon (faultd)
 	# managing a set of services.
@@ -568,4 +568,4 @@ def execute(sector):
 	# &.bin.sectord entry point for starting an instance of &.bin.rootd.
 	"""
 
-	return libio.System.create(Set())
+	return libkernel.System.create(Set())

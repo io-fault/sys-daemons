@@ -109,13 +109,13 @@ def configure_root_service(srv):
 
 	# initialize sectors.xml
 	from ..daemon import library as libd
-	from . import library as libio
+	from ..kernel import library as libkernel
 	xml = srv.route / 'sectors.xml'
 	struct = {
 		'concurrency': 0,
 		'interfaces': {
 			'http': [
-				libio.endpoint('local', str(srv.route/'if'), 'http'),
+				libkernel.endpoint('local', str(srv.route/'if'), 'http'),
 			]
 		},
 	}
