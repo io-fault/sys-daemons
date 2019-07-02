@@ -46,9 +46,10 @@ import os
 import sys
 import itertools
 
-from ..time import library as libtime
 from ..system.files import Path
 from ..system import xml as system_xml
+
+from ..time import sysclock
 
 types = set((
 	'daemon',
@@ -201,7 +202,7 @@ class Service(object):
 		"""
 
 		logfile = self.route / "critical.log"
-		ts = libtime.now().select('iso')
+		ts = sysclock.now().select('iso')
 
 		with logfile.open('a') as f:
 			f.write('%s: %s\n' %(ts, message))

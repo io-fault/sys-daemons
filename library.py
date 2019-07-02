@@ -42,9 +42,11 @@ import typing
 
 from ..system import execution as libexec
 from ..system.files import Path
-from ..time import library as libtime
 from ..web import library as libweb
 from ..kernel import library as libkernel
+
+from ..time import types as timetypes
+from ..time import sysclock
 
 from . import core
 
@@ -243,7 +245,7 @@ class Commands(libweb.Index):
 		"""
 		# Return rootd's perception of time.
 		"""
-		return libtime.now().select("iso")
+		return sysclock.now().select("iso")
 
 	# /if/usignal?number=9
 
@@ -318,9 +320,9 @@ class ServiceManager(libkernel.Processor):
 	"""
 
 	# delay before faultd perceives the daemon as running
-	minimum_runtime = libtime.Measure.of(second=3)
-	minimum_wait = libtime.Measure.of(second=2)
-	maximum_wait = libtime.Measure.of(second=32)
+	minimum_runtime = timetypes.Measure.of(second=3)
+	minimum_wait = timetypes.Measure.of(second=2)
+	maximum_wait = timetypes.Measure.of(second=32)
 
 	def structure(self):
 		p = [
@@ -359,7 +361,7 @@ class ServiceManager(libkernel.Processor):
 		self.status = 'terminated'
 
 		self.sm_update()
-		self.sm_last_known_time = libtime.now()
+		self.sm_last_known_time = sysclock.now()
 		srv = self.service
 
 		if srv.actuates and srv.type in ('daemon', 'sectors'):
@@ -433,7 +435,7 @@ class ServiceManager(libkernel.Processor):
 		if self.status != 'exception':
 			self.status = 'terminated'
 
-		self.exit_events.append((libtime.now(), pid_exit))
+		self.exit_events.append((sysclock.now(), pid_exit))
 
 		# automatically recover if its a daemon or sectors
 		if self.service.type in ('daemon', 'sectors'):
