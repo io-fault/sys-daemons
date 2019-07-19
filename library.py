@@ -311,11 +311,11 @@ class ServiceManager(libkernel.Processor):
 		# so there are race conditions.
 
 	# [ Properties ]
-	# /minimum_runtime
+	# /minimum_runtime/
 		# Identifies the minimum time required to identify a successful start.
-	# /minimum_wait
+	# /minimum_wait/
 		# Identifies the minimum wait time before trying again.
-	# /maximum_wait
+	# /maximum_wait/
 		# Identifies the maximum wait time before trying again.
 	"""
 

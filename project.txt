@@ -9,7 +9,7 @@
 /abstract/
 	Process management daemon
 /icon/
-	- (emoji)`🌪`
+	- (emoji)`📐`
 
 /versioning/
 	continuous

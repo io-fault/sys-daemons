@@ -198,7 +198,6 @@ def menu(route, syn=command_synopsis):
 	])
 
 def main(*args, fiod=None):
-
 	if fiod is None:
 		fiod = os.environ.get(core.environment)
 
