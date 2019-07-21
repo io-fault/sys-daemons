@@ -1,7 +1,3 @@
 """
-# Process management daemon.
-
-# &..sectors provides a controlling process for a set of daemon processes configured as "services".
-# &..sectors depends on &fault.io and &fault.daemon for the necessary framework.
+# Process management daemon and daemon runtime tools.
 """
-__factor_type__ = 'project'
