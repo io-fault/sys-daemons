@@ -28,11 +28,6 @@
 	# Exclusive command execution; guarantees that only a configured
 	# number of invocations can be running at a given moment.
 
-# /processor/
-	# A variant of &command where faultd maintains a set of invocations
-	# where they are expected to exit when their allotted duration
-	# has expired.
-
 # /root/
 	# Service representation of the faultd instance. Provides
 	# global environment configuration.
@@ -47,7 +42,7 @@ import sys
 import itertools
 
 from ..system.files import Path
-from ..system import xml as system_xml
+from ..system import execution as libexec
 
 from ..time import sysclock
 
@@ -108,19 +103,18 @@ def configure_root_service(srv):
 	# The services controlled by &srv
 	(srv.route / 'daemons').init('directory')
 
-	# initialize sectors.xml
 	from ..daemon import library as libd
-	from ..kernel import library as libkernel
-	xml = srv.route / 'sectors.xml'
+	from ..kernel import io as kio
+	cfg = srv.route / 'sectors.cfg'
 	struct = {
 		'concurrency': 0,
 		'interfaces': {
 			'http': [
-				libkernel.endpoint('local', str(srv.route/'if'), 'http'),
+				kio.endpoint('local', str(srv.route/'if'), 'http'),
 			]
 		},
 	}
-	xml.store(b''.join(libd.serialize_sectors(struct)))
+	cfg.store(b''.join(libd.serialize_sectors(struct)))
 
 class Service(object):
 	"""
@@ -230,7 +224,7 @@ class Service(object):
 			return exe, [self.identifier] + (self.parameters or [])
 		else:
 			# daemon or command
-			return self.executable, [self.executable] + (self.parameters or [])
+			return self.executable, (self.parameters or [])
 
 	def execute(self):
 		"""
@@ -243,7 +237,6 @@ class Service(object):
 
 		# A call to &load prior to running this is often reasonable.
 		"""
-		global os
 
 		os.environ.update(self.environment or ())
 		exe, params = self.execution()
@@ -307,7 +300,6 @@ class Service(object):
 
 	# one pair for each file
 	invocation_attributes = (
-		'type',
 		'abstract',
 		'executable',
 		'environment',
@@ -321,24 +313,26 @@ class Service(object):
 			for x in self.invocation_attributes
 		}
 
+	def load_abstract(self):
+		ar = self.route / "abstract.txt"
+		self.abstract = ar.load().decode('utf-8')
+
 	def load_invocation(self):
-		inv_r = self.route / "if" / "invocation.xml"
+		inv_r = self.route / "if" / "invocation.txt"
 		data = inv_r.load()
 		if data:
-			# Delay import.
-			import xml.etree.ElementTree as et
-			inv = system_xml.Execute.structure(et.XML(data))
-		else:
-			inv = None
-
-		if inv is not None:
-			for k, v in inv.items():
-				self.__dict__[k] = v
+			env, exe, params = libexec.parse_sx_plan(data.decode('utf-8'))
+			self.executable = exe or None
+			self.parameters = params
+			self.environment = env
 
 	def store_invocation(self):
-		xml = b''.join(system_xml.Execute.serialize(self.parts))
-		inv_r = self.route / "if" / "invocation.xml"
-		inv_r.store(xml)
+		inv_r = self.route / "if" / "invocation.txt"
+		env = self.environment or []
+		exe = self.executable or ''
+		params = self.parameters or []
+		data = ''.join(libexec.serialize_sx_plan((env, exe, params)))
+		inv_r.store(data.encode('utf-8'))
 
 	def load_actuation(self):
 		en_r = self.route / "actuation.txt"

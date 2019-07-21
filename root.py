@@ -43,7 +43,7 @@ import typing
 from ..system import execution as libexec
 from ..system.files import Path
 from ..web import library as libweb
-from ..kernel import library as libkernel
+from ..kernel import core as kcore
 
 from ..time import types as timetypes
 from ..time import sysclock
@@ -295,7 +295,7 @@ class Commands(libweb.Index):
 		service = self.services[name]
 		return service.interfaces
 
-class ServiceManager(libkernel.Processor):
+class ServiceManager(kcore.Context):
 	"""
 	# Service daemon state and interface.
 
@@ -485,7 +485,7 @@ class ServiceManager(libkernel.Processor):
 # A given group has a set of configured interfaces; these interfaces
 # are allocated by the parent process as they're configured.
 
-class Set(libkernel.Context):
+class Set(kcore.Context):
 	"""
 	# The (io/path)`/control` sector of the root daemon (faultd)
 	# managing a set of services.
@@ -564,10 +564,3 @@ class Set(libkernel.Context):
 		for sn, s in self.services.items():
 			s.load()
 			self.set_install(s)
-
-def execute(sector):
-	"""
-	# &.bin.sectord entry point for starting an instance of &.bin.rootd.
-	"""
-
-	return libkernel.System.create(Set())

@@ -29,7 +29,11 @@ def command_create(srv, *params):
 			srv.executable = exe
 			srv.parameters = cparams
 
-	srv.store()
+	try:
+		srv.store()
+	except:
+		srv.void()
+		raise
 
 def command_void(srv):
 	"Remove the service directory and its contents."
@@ -102,7 +106,7 @@ def command_report(srv):
 	command = [srv.executable]
 	command.extend(srv.parameters)
 
-	envvars = ' '.join(['%s=%r' %(k, v) for k, v in srv.environment.items()])
+	envvars = ' '.join(['%s=%r' %(k, v) for k, v in srv.environment])
 	dir = srv.route.fullpath
 	docs = (srv.route / 'readme.txt').load().decode('utf-8')
 
