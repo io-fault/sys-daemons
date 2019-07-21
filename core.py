@@ -103,7 +103,7 @@ def configure_root_service(srv):
 	# The services controlled by &srv
 	(srv.route / 'daemons').init('directory')
 
-	from ..daemon import library as libd
+	from . import daemon
 	from ..kernel import io as kio
 	cfg = srv.route / 'sectors.cfg'
 	struct = {
@@ -114,7 +114,7 @@ def configure_root_service(srv):
 			]
 		},
 	}
-	cfg.store(b''.join(libd.serialize_sectors(struct)))
+	cfg.store(b''.join(daemon.serialize_sectors(struct)))
 
 class Service(object):
 	"""
