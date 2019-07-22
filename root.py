@@ -24,13 +24,11 @@
 	# invocation.xml written every boot to reflect its invocation
 
 # /root/
-	# type: sectors | daemon | command | root (reserved for libroot)
 	# actuates: True or False (whether or not its to be spawned)
 	# status: run state (executed|terminated|exception)
 	# invocation.xml: command and environment for service
 	# if/: directory of sockets; 0 refers to the master
 		# 0-n
-		# Only guaranteed to be available for sectord and control types.
 """
 
 import os
@@ -220,23 +218,6 @@ class Commands(libweb.Index):
 				yield (service.identifier, managed.subprocess.signal(signal.SIGTERM))
 
 	@libweb.Resource.method()
-	def execute(self, resource, parameters):
-		"""
-		# Execute the command associated with the service. Only applies to command types.
-		"""
-
-		managed = self.managed[parameters['service']]
-		service = self.services[parameters['service']]
-
-		if service.status == 'executed':
-			return (service.identifier, "already running")
-		if service.type != 'command':
-			return (service.identifier, "not a command service")
-		else:
-			managed.sm_invoke()
-			return (service.identifier, "service invoked")
-
-	@libweb.Resource.method()
 	def report(self, resource, parameters):
 		pass
 
@@ -364,7 +345,7 @@ class ServiceManager(kcore.Context):
 		self.sm_last_known_time = sysclock.now()
 		srv = self.service
 
-		if srv.actuates and srv.type in ('daemon', 'sectors'):
+		if srv.actuates:
 			self.sm_invoke()
 
 		return self
@@ -373,10 +354,6 @@ class ServiceManager(kcore.Context):
 		"""
 		# Invoke the service. Does nothing if &status is `'executed'`.
 		"""
-
-		if self.service.type == 'root':
-			# totally ignore invocations for root services.
-			return 'root is already invoked'
 
 		if self.status == 'executed':
 			return 'already running'
@@ -438,21 +415,19 @@ class ServiceManager(kcore.Context):
 		self.exit_events.append((sysclock.now(), pid_exit))
 
 		# automatically recover if its a daemon or sectors
-		if self.service.type in ('daemon', 'sectors'):
-			if self.inhibit_recovery == True:
-				pass
-			else:
-				if self.service.actuates:
-					self.sm_again()
-				elif self.inhibit_recovery == False:
-					# restarted
-					self.inhibit_recovery = None
-					self.sm_again()
+		if self.inhibit_recovery == True:
+			pass
+		else:
+			if self.service.actuates:
+				self.sm_again()
+			elif self.inhibit_recovery == False:
+				# restarted
+				self.inhibit_recovery = None
+				self.sm_again()
 
 	def sm_update(self):
 		"""
 		# Create or Update the KInvocation instance.
-		# Used to initiate the Invocation and after command and environment changes.
 		"""
 
 		# KInvocation used to run the command.

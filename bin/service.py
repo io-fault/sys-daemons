@@ -8,6 +8,7 @@
 import os
 import sys
 
+from ...context import string
 from ...system.files import Path
 from .. import core
 
@@ -18,16 +19,13 @@ def command_create(srv, *params):
 		sys.stderr.write("service directory already exists\n")
 		raise SystemExit(1)
 
-	srv.create("unspecified")
+	srv.create()
 	srv.enabled = False
 
 	if params:
-		type, *command = params
-		srv.type = type
-		if command:
-			exe, *cparams = command
-			srv.executable = exe
-			srv.parameters = cparams
+		exe, *cparams = params
+		srv.executable = exe
+		srv.parameters = cparams
 
 	try:
 		srv.store()
@@ -52,9 +50,7 @@ def command_define(srv, *params):
 	srv.load()
 	srv.executable = exe
 	srv.parameters = params
-
-	if srv.type in ("root", "sectors"):
-		srv.libexec(recreate=True)
+	srv.libexec(recreate=True)
 
 	srv.store()
 
@@ -76,25 +72,18 @@ def command_environ_add(srv, *pairs):
 	"Add the given settings as environment variables. (No equal sign used in assignments)"
 
 	srv.load()
-	for k, v in zip(pairs[::2], pairs[1::2]):
-		srv.environment[k] = v
-
+	srv.environment.extend(zip(pairs[::2], pairs[1::2]))
 	srv.store_invocation()
 
 def command_environ_del(srv, *varnames):
 	"Remove the given environment variables from the service."
 
 	srv.load()
-	for var in varnames:
-		del srv.environment[var]
+	srv.environment = [
+		x for x in srv.environment
+		if x[0] not in varnames
+	]
 
-	srv.store_invocation()
-
-def command_set_type(srv, type):
-	"Set the service's type: daemon, command, or sectors."
-
-	srv.load()
-	srv.type = type
 	srv.store_invocation()
 
 def command_report(srv):
@@ -112,7 +101,6 @@ def command_report(srv):
 
 	report = """
 		Service: {srv.identifier}
-		Type: {srv.type}
 		Actuation: {srv.actuation}
 		Directory: {dir}
 		Command: {command}\n""".format(**locals())
@@ -133,17 +121,13 @@ def command_execute(srv):
 	srv.execute()
 
 def command_update(srv):
-	"""
-	# Recreate the hardlink for root and sectors.
-	"""
+	"Recreate the hardlink for root and sectors."
 
 	srv.load()
-
-	if srv.type in ("root", "sectors"):
-		srv.libexec(recreate=True)
+	srv.libexec(recreate=True)
 
 command_synopsis = {
-	'create': "type:(sectors|daemon|command) executable [parameters ...]",
+	'create': "executable name [parameters]",
 	'env-add': "[VARNAME1 VALUE1 VARNAME2 VALUE2 ...]",
 	'env-del': "[VARNAME1 VARNAME2 ...]",
 }
@@ -153,7 +137,6 @@ command_map = {
 	'create': command_create,
 	'command': command_define,
 	'update': command_update,
-	'type': command_set_type,
 	'enable': command_enable,
 	'disable': command_disable,
 
@@ -165,8 +148,6 @@ command_map = {
 }
 
 def menu(route, syn=command_synopsis):
-	global command_map
-
 	commands = [
 		(cname, cfunc.__doc__, cfunc.__code__.co_firstlineno)
 		for cname, cfunc in command_map.items()
@@ -193,12 +174,18 @@ def menu(route, syn=command_synopsis):
 	ddir = route / 'daemons'
 	sl = ddir.subnodes()[0]
 	service_head = "\n\nServices [%s][%d]:\n\n\t" %(route.fullpath, len(sl),)
-	service_list = '\n\t'.join([x.identifier for x in sl]) or '[None]'
+
+	abstracts = [x.load() for x in (y/'abstract.txt' for y in sl)]
+	services = [
+		(x.identifier + ('\n\t' + string.indent(ab.decode('utf-8')) if ab else ''))
+		for x, ab in zip(sl, abstracts)
+	]
+	service_list = '\n\t'.join(services) or '[None]'
 
 	return ''.join([
 		head, descr, command_head,
 		command_help, service_head,
-		service_list, '\n\n'
+		service_list, '\n'
 	])
 
 def main(*args, fiod=None):

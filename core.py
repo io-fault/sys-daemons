@@ -12,29 +12,6 @@
 # /default_route/
 	# A &Path instance pointing to the default route
 	# relative to the user's home directory. (~/.fault)
-
-# [ Service Types ]
-
-# The types of services that are managed by a faultd instance.
-
-# /daemon/
-	# An invocation that is expected to maintain its running state.
-
-# /sectors/
-	# A daemon that is specialized for fault.io sectord executions.
-	# This includes &.libroot processes.
-
-# /command/
-	# Exclusive command execution; guarantees that only a configured
-	# number of invocations can be running at a given moment.
-
-# /root/
-	# Service representation of the faultd instance. Provides
-	# global environment configuration.
-
-# /unspecified/
-	# Placeholder type used when a created service has not been given
-	# a type. Unspecified services may be removed arbitrarily.
 """
 
 import os
@@ -45,15 +22,6 @@ from ..system.files import Path
 from ..system import execution as libexec
 
 from ..time import sysclock
-
-types = set((
-	'daemon',
-	'sectors',
-	'processor',
-
-	'root',
-	'unspecified',
-))
 
 environment = 'FAULT_DAEMON_DIRECTORY'
 default_route = Path.home() / '.fault' / 'rootd'
@@ -90,7 +58,7 @@ def configure_root_service(srv):
 	# Given a &Service selecting an uninitialized file system path,
 	# configure the path as a root sector daemon.
 	"""
-	srv.create('root')
+	srv.create()
 	srv.executable = sys.executable # reveal original executable
 	srv.actuation = 'enabled'
 	# rootd is a sector daemon.
@@ -131,11 +99,7 @@ class Service(object):
 
 		r = self.route
 		led = r / "libexec"
-
-		if self.type == 'root':
-			exe = led / 'rootd'
-		else:
-			exe = led / self.identifier
+		exe = led / self.identifier
 
 		fp = exe.fullpath
 
@@ -150,18 +114,15 @@ class Service(object):
 
 	def prepare(self):
 		"""
-		# Create the service directory and any type specific subnodes.
+		# Create the service directory.
 		"""
 
-		typ = self.type
 		r = self.route
 
 		r.init("directory")
 		(r / 'libexec').init("directory")
-
-		if typ in ('sectors', 'root'):
-			if_dir = (r / 'if')
-			if_dir.init("directory")
+		if_dir = (r / 'if')
+		if_dir.init("directory")
 
 	def void(self):
 		"""
@@ -170,7 +131,7 @@ class Service(object):
 
 		self.route.void()
 
-	def __init__(self, route:Path, identifier:str, type='unspecified'):
+	def __init__(self, route:Path, identifier:str):
 		"""
 		# Initialize the Service structure selecting the &route as its
 		# storage location. The &route may not exist upon instantiation
@@ -180,7 +141,6 @@ class Service(object):
 		"""
 		self.route = route
 		self.identifier = identifier
-		self.type = type
 
 		self.executable = None
 		self.environment = {}
@@ -216,15 +176,7 @@ class Service(object):
 		# Return a tuple consisting of the executable and the parameters.
 		"""
 
-		if self.type == 'root':
-			exe = self.libexec('faultd')
-			return exe, ['faultd'] + (self.parameters or [])
-		elif self.type == 'sectors':
-			exe = self.libexec(self.identifier)
-			return exe, [self.identifier] + (self.parameters or [])
-		else:
-			# daemon or command
-			return self.executable, (self.parameters or [])
+		return self.executable, (self.parameters or [])
 
 	def execute(self):
 		"""
@@ -245,31 +197,12 @@ class Service(object):
 
 		assert False
 
-	def create(self, type, types=types):
+	def create(self):
 		"""
 		# Create the service directory and initialize many of the configuration files.
-
-		# There are three types that may be created: "command", "daemon", and "sectors".
-
-		# "command" types are simple commands that are executed exclusively. The
-		# faultd process provides the necessary synchronization to avoid concurrent invocations.
-		# Any requests to run the command while it's running will induce no effect.
-
-		# "daemon" types are daemon processes spawned to remain within the process tree.
-		# Additional retry logic is used to manage daemons in order to guarantee that a reasonable
-		# attempt was made to start them.
-
-		# "sectors" is a daemon, but understood to be a fault.io based process. Configuration
-		# changes to the process will sometimes be dynamically modified without restart
-		# or reload operations as the root process will provide a control interface that can
-		# be used to propagate changes.
 		"""
 
-		if type not in types:
-			raise ValueError("unknown service type: " + type)
-
 		self.actuation = 'disabled'
-		self.type = type
 		self.prepare()
 		self.store()
 

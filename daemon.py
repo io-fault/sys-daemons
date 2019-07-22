@@ -55,7 +55,7 @@ def extract_sectors_config(document):
 def serialize_sectors(struct, encoding="ascii", chain=itertools.chain.from_iterable):
 	pass
 
-class Control(core.Context):
+class Control(kcore.Context):
 	"""
 	# Control Transaciton that manages the concurrency of a process and the control
 	# interfaces thereof.
