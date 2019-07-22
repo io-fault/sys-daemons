@@ -13,8 +13,6 @@ from ...system.files import Path
 from .. import core
 
 def command_create(srv, *params):
-	"Create the service directory and initialize its settings."
-
 	if srv.exists():
 		sys.stderr.write("service directory already exists\n")
 		raise SystemExit(1)
@@ -34,8 +32,6 @@ def command_create(srv, *params):
 		raise
 
 def command_void(srv):
-	"Remove the service directory and its contents."
-
 	if not srv.exists():
 		sys.stderr.write("service directory does not exist\n")
 		raise SystemExit(1)
@@ -43,8 +39,6 @@ def command_void(srv):
 	srv.route.void()
 
 def command_define(srv, *params):
-	"Define the executable and its parameters for starting the service."
-
 	exe, *params = params
 
 	srv.load()
@@ -55,29 +49,21 @@ def command_define(srv, *params):
 	srv.store()
 
 def command_enable(srv):
-	"Enable the service causing it to be started when faultd is ran."
-
 	srv.load_actuation()
 	srv.actuates = True
 	srv.store_actuation()
 
 def command_disable(srv):
-	"Disable the service; attempts to start afterward will fail unless forced."
-
 	srv.load_actuation()
 	srv.actuates = False
 	srv.store_actuation()
 
 def command_environ_add(srv, *pairs):
-	"Add the given settings as environment variables. (No equal sign used in assignments)"
-
 	srv.load()
 	srv.environment.extend(zip(pairs[::2], pairs[1::2]))
 	srv.store_invocation()
 
 def command_environ_del(srv, *varnames):
-	"Remove the given environment variables from the service."
-
 	srv.load()
 	srv.environment = [
 		x for x in srv.environment
@@ -87,8 +73,6 @@ def command_environ_del(srv, *varnames):
 	srv.store_invocation()
 
 def command_report(srv):
-	"Report the service's definition to standard error."
-
 	srv.load()
 	name = srv.route
 
@@ -115,14 +99,10 @@ def command_report(srv):
 	raise SystemExit(64) # EX_USAGE
 
 def command_execute(srv):
-	"For testing, execute the service (using exec) as if it were ran by faultd."
-
 	srv.load()
 	srv.execute()
 
 def command_update(srv):
-	"Recreate the hardlink for root and sectors."
-
 	srv.load()
 	srv.libexec(recreate=True)
 
@@ -147,9 +127,27 @@ command_map = {
 	'report': command_report,
 }
 
-def menu(route, syn=command_synopsis):
+command_descriptions = {
+	'create': "Create the service directory and initialize its settings.",
+	'void': "Remove the service directory and its contents.",
+	'command': "Define the executable and its parameters for starting the service.",
+	'enable':
+		"Enable the service causing it to be started when faultd is ran.",
+	'disable':
+		"Disable the service; attempts to start afterward will fail unless forced.",
+	'env-add':
+		"Add the given settings as environment variables. (No equal sign used in assignments)",
+	'env-del':
+		"Remove the given environment variables from the service.",
+	'report': "Report the service's definition to standard error.",
+	'update': "Recreate the hardlink for root and sectors.",
+	'execute':
+		"For testing, execute the service (using exec) as if it were ran by faultd.",
+}
+
+def menu(route, syn=command_synopsis, docs=command_descriptions):
 	commands = [
-		(cname, cfunc.__doc__, cfunc.__code__.co_firstlineno)
+		(cname, docs[cname], cfunc.__code__.co_firstlineno)
 		for cname, cfunc in command_map.items()
 	]
 

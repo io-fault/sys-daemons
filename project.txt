@@ -7,7 +7,7 @@
 /name/
 	`sectors`
 /abstract/
-	Process management daemon
+	Process management daemon and daemon support modules.
 /icon/
 	- (emoji)`📐`
 
