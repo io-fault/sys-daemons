@@ -1,8 +1,8 @@
 """
-# faultd service interface for automating configuration management during daemon downtime.
+# Configuration command for daemon sets.
 
-# Deals directly with the file system and should only be used while faultd is not running.
-# Invoking without arguments displays help to standard error.
+# Deals directly with the file system; running instances will not be explicitly signalled regarding changes.
+# Invoking without arguments displays help menu to standard error.
 """
 
 import os
@@ -169,9 +169,9 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 		for cname, cdoc, lineno in commands
 	])
 
-	ddir = route / 'daemons'
+	*ignored, ddir = (route / 'daemons').follow_links()
 	sl = ddir.subnodes()[0]
-	service_head = "\n\nServices [%s][%d]:\n\n\t" %(route.fullpath, len(sl),)
+	service_head = "\n\nServices [%s][%d]:\n\n\t" %(ddir.fullpath, len(sl),)
 
 	abstracts = [x.load() for x in (y/'abstract.txt' for y in sl)]
 	services = [
