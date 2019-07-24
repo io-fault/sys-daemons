@@ -1,5 +1,5 @@
 """
-# Service management interfaces.
+# Service configuration interfaces.
 
 # Manages the service state stored on disk.
 
@@ -84,7 +84,7 @@ def configure_root_service(srv):
 	}
 	cfg.store(b''.join(daemon.serialize_sectors(struct)))
 
-class Service(object):
+class Configuration(object):
 	"""
 	# faultd service states manager.
 
@@ -222,6 +222,7 @@ class Service(object):
 
 		self.load_actuation()
 		self.load_invocation()
+		self.load_abstract()
 
 	def store(self):
 		"""
@@ -230,25 +231,15 @@ class Service(object):
 
 		self.store_invocation()
 		self.store_actuation()
-
-	# one pair for each file
-	invocation_attributes = (
-		'abstract',
-		'executable',
-		'environment',
-		'parameters',
-	)
-
-	@property
-	def parts(self):
-		return {
-			x: self.__dict__[x]
-			for x in self.invocation_attributes
-		}
+		self.store_abstract()
 
 	def load_abstract(self):
 		ar = self.route / "abstract.txt"
 		self.abstract = ar.load().decode('utf-8')
+
+	def store_abstract(self):
+		ar = self.route / "abstract.txt"
+		ar.store(self.abstract.encode('utf-8'))
 
 	def load_invocation(self):
 		inv_r = self.route / "if" / "invocation.txt"

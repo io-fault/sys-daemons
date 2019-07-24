@@ -10,7 +10,7 @@ import sys
 
 from ...context import string
 from ...system.files import Path
-from .. import core
+from .. import service
 
 def command_create(srv, *params):
 	if srv.exists():
@@ -188,11 +188,11 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 
 def main(*args, fiod=None):
 	if fiod is None:
-		fiod = os.environ.get(core.environment)
+		fiod = os.environ.get(service.environment)
 
 		if fiod is None:
 			# from builtin default
-			fiod = core.default_route
+			fiod = service.default_route
 			dsrc = 'default'
 		else:
 			# from env
@@ -208,15 +208,15 @@ def main(*args, fiod=None):
 		sys.stderr.write('\n')
 		raise SystemExit(64) # EX_USAGE
 	else:
-		service, *args = args
+		service_name, *args = args
 		if args:
 			command, *params = args
 		else:
 			command = 'report'
 			params = args
 
-		srvdir = fiod / 'daemons' / service
-		si = core.Service(srvdir, service)
+		srvdir = fiod / 'daemons' / service_name
+		si = service.Configuration(srvdir, service_name)
 		ci = command_map[command]
 		ci(si, *params)
 
