@@ -1,34 +1,12 @@
 """
 # Root daemon process for service management and scheduled processes.
 
-# libroot provides the primary support for &.bin.rootd which manages a scheduling daemon,
-# a set of service processes and a set of service Sectors assigned to a particular
-# group with its own configurable concurrency level.
+# &.root provides the primary support for &.bin.rootd which manages a set of daemons,
 
-# Multiple instances of faultd may exist, but usually only one per-user is necessary.
+# Multiple instances of rootd may exist, but usually only one per-user is desired.
 # The (system/home)`.fault` directory is used by default, but can be adjusted by a command
 # line parameter. The daemon directory supplies all the necessary configuration,
 # so few options are available from system invocation.
-
-# It is important that the faultd directory exist on the same partition as the
-# Python executable. Hardlinks are used in order to provide accurate process names.
-
-# The daemon directory structure is a set of service directories managed by the instance with
-# "scheduled" and "root" reserved for the management of the administrative scheduler
-# and the spawning daemon itself.
-
-# /root/
-	# Created automatically to represent the faultd process.
-	# All files are instantiated as if it were a regular service.
-	# state is always ON
-	# invocation.xml written every boot to reflect its invocation
-
-# /root/
-	# actuates: True or False (whether or not its to be spawned)
-	# status: run state (executed|terminated|exception)
-	# invocation.xml: command and environment for service
-	# if/: directory of sockets; 0 refers to the master
-		# 0-n
 """
 
 import os
@@ -296,10 +274,10 @@ class Service(kcore.Context):
 	# [ Properties ]
 	# /s_minimum_runtime/
 		# Identifies the minimum time required to identify a successful start.
-	# /s_minimum_wait/
-		# Identifies the minimum wait time before trying again.
-	# /s_maximum_wait/
-		# Identifies the maximum wait time before trying again.
+	# /s_retry_wait/
+		# Duration to wait before automatically attemping to start the daemon again.
+	# /s_maximum_attempts/
+		# Limit of attempts to make before giving up and inhibiting daemon start.
 	"""
 
 	# delay before faultd perceives the daemon as running
@@ -453,14 +431,6 @@ class Service(kcore.Context):
 			self.s_close()
 		else:
 			self.finish_termination()
-
-# faultd manages services via a set of directories that identify the service
-# and its launch parameters/environment.
-
-# fault.io sectors are more complicated in that they are actually process groups
-# that contain multiple root Sectors (applications) that may or may not fork.
-# A given group has a set of configured interfaces; these interfaces
-# are allocated by the parent process as they're configured.
 
 class Set(kcore.Context):
 	"""
