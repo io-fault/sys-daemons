@@ -13,20 +13,36 @@ def configure_root_service(srv):
 
 	srv.create()
 	srv.actuation = 'enabled'
-	srv.executable = 'libexec/rootd' # reveal original executable
+	srv.executable = 'libexec/rootd'
 	srv.parameters = [__package__+'.rootd']
 	srv.store()
 
 	# The services controlled by &srv
-	(srv.route / 'daemons').init('directory')
+	ddir = (srv.route / 'daemons')
+
+	# When using the default home route, ~/.daemons is used
+	# in order to avoid directory depth.
+	if srv.route is service.default_route:
+		home = ddir ** 3
+		ltarget = ddir
+		ddir = (home / '.daemons')
+		ltarget.link(ddir)
+	else:
+		pass
+
+	ddir.init('directory')
 
 def main(inv:process.Invocation) -> process.Exit:
-	path, = inv.args
-	r = Path.from_path(path)
+	try:
+		path, = inv.args
+	except ValueError:
+		path = None
+
+	r = service.identify_route(path)
 	srv = service.Configuration(r, 'rootd')
 	configure_root_service(srv)
 
 	return inv.exit(0)
 
 if __name__ == '__main__':
-	process.control(main, process.Invocation.system())
+	process.control(main, process.Invocation.system(environ=(service.environment,)))

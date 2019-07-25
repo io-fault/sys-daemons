@@ -155,12 +155,12 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 
 	head = "configure [service_name] [command] ...\n\n"
 
-	descr = "Modify the fault services' stored configuration. Modifications\n"
-	descr += "apply directly to disk and do not effect "
-	descr += "the running process unless reloaded.\n"
-	descr += "\nThis should only be used prior starting faultd.\n"
+	descr = "Modify a service's stored configuration.\n" + \
+		"Changes apply directly to disk and do not effect " + \
+		"the running process unless signalled.\n"
+
 	ctl = __package__ + '.control'
-	descr += "Use {0} for interacting with a running faultd instance.\n".format(ctl)
+	descr += "Use %s for interacting with a running rootd instance.\n" %(ctl,)
 
 	command_head = "\nCommands:\n\t"
 
@@ -171,10 +171,10 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 
 	if route.exists():
 		*ignored, ddir = (route / 'daemons').follow_links()
-		sl = ddir.subnodes()[0]
+		sl = [x for x in ddir.subnodes()[0] if service.Configuration(x, x.identifier).isconsistent()]
 		service_head = "Services [%s][%d]:\n\n\t" %(ddir.fullpath, len(sl),)
 
-		abstracts = [x.load() for x in (y/'abstract.txt' for y in sl)]
+		abstracts = [x.load().strip() for x in (y/'abstract.txt' for y in sl)]
 		services = [
 			(x.identifier + ('\n\t' + string.indent(ab.decode('utf-8')) if ab else ''))
 			for x, ab in zip(sl, abstracts)
@@ -186,7 +186,8 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 
 	return ''.join([
 		head, descr, command_head,
-		command_help, '\n\n', service_head,
+		command_help, '\n\n',
+		service_head,
 		service_list, '\n'
 	])
 

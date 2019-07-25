@@ -39,11 +39,12 @@ def identify_route(override=None):
 	if env is None:
 		return default_route
 
-	return Path.from_path(env)
+	return Path.from_absolute(env)
 
-def service_routes(route=default_route):
+def service_routes(route):
 	"""
 	# Collect the routes to the set of services in the directory.
+	# Regular files existing in &route are ignored.
 	"""
 
 	# Only interested in directories.
@@ -184,6 +185,28 @@ class Configuration(object):
 
 		return self.route.exists()
 
+	def isconsistent(self):
+		"""
+		# Whether the stored configuration has the necessary
+		# on-disk structure for supporting a rootd Service.
+		"""
+		r = self.route
+		if not (r.is_directory() == True):
+			return False
+
+		ifr = (r / 'if')
+		if not (ifr.is_directory() == True):
+			return False
+
+		critlog = (r / 'critical.log')
+		actuation = (r / 'actuation.txt')
+		inv = (ifr / 'invocation.txt')
+		for f in (critlog, actuation, inv):
+			if not (f.is_regular_file() == True):
+				return False
+
+		return True
+
 	def load(self):
 		"""
 		# Load the service definition from the filesystem.
@@ -205,7 +228,7 @@ class Configuration(object):
 
 	def load_abstract(self):
 		ar = self.route / "abstract.txt"
-		self.abstract = ar.load().decode('utf-8') or None
+		self.abstract = ar.load().decode('utf-8').strip() or None
 
 	def store_abstract(self):
 		ar = self.route / "abstract.txt"
