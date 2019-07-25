@@ -53,37 +53,6 @@ def service_routes(route=default_route):
 
 _actuation_map = {'enabled':True, 'disabled':False, True:'enabled', False:'disabled'}
 
-def configure_root_service(srv):
-	"""
-	# Given a &Service selecting an uninitialized file system path,
-	# configure the path as a root sector daemon.
-	"""
-	srv.create()
-	srv.executable = sys.executable # reveal original executable
-	srv.actuation = 'enabled'
-	# rootd is a sector daemon.
-	srv.parameters = [
-		'-m', __package__+'.bin.sectord',
-		__package__+'.libroot.Set.rs_initialize'
-	]
-	srv.store()
-
-	# The services controlled by &srv
-	(srv.route / 'daemons').init('directory')
-
-	from . import daemon
-	from ..kernel import io as kio
-	cfg = srv.route / 'sectors.cfg'
-	struct = {
-		'concurrency': 0,
-		'interfaces': {
-			'http': [
-				kio.endpoint('local', str(srv.route/'if'), 'http'),
-			]
-		},
-	}
-	cfg.store(b''.join(daemon.serialize_sectors(struct)))
-
 class Configuration(object):
 	"""
 	# faultd service states manager.
@@ -231,11 +200,12 @@ class Configuration(object):
 
 		self.store_invocation()
 		self.store_actuation()
-		self.store_abstract()
+		if self.abstract is not None:
+			self.store_abstract()
 
 	def load_abstract(self):
 		ar = self.route / "abstract.txt"
-		self.abstract = ar.load().decode('utf-8')
+		self.abstract = ar.load().decode('utf-8') or None
 
 	def store_abstract(self):
 		ar = self.route / "abstract.txt"
