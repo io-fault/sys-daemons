@@ -56,10 +56,7 @@ _actuation_map = {'enabled':True, 'disabled':False, True:'enabled', False:'disab
 
 class Configuration(object):
 	"""
-	# faultd service states manager.
-
-	# Represents the faultd service stored on disk. The load and store methods are used
-	# to perform the necessary updates to or from disk.
+	# Service configuration storage interface.
 	"""
 
 	def libexec(self, recreate=False, root=None):
@@ -160,7 +157,14 @@ class Configuration(object):
 		# A call to &load prior to running this is often reasonable.
 		"""
 
-		os.environ.update(self.environment or ())
+		if self.environment:
+			for x, val in self.environment.items():
+				if val is None:
+					del os.environ[x]
+			os.environ.update([
+				x for x in self.environment.items() if x[1] is not None
+			])
+
 		exe, params = self.execution()
 		os.chdir(self.route.fullpath)
 		os.execl(exe, *params)

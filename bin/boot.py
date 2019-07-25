@@ -26,6 +26,6 @@ if __name__ == '__main__':
 
 	os.environ['SERVICE_NAME'] = 'rootd'
 	rs.load()
-	rs.execute() # For rootd, the replacement will enter .bin.sectord.
+	rs.execute()
 
 	raise RuntimeError("program reached area after exec")
