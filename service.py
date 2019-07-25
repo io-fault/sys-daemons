@@ -296,16 +296,3 @@ class Configuration(object):
 	def store_pid(self):
 		pid_r = self.route / "pid"
 		pid_r.store(str(self.pid).encode('ascii')+b'\n')
-
-	@property
-	def status(self):
-		"""
-		# Get and set the contents of the status file in the Service directory.
-		"""
-
-		return (self.route / "status").load().decode('utf-8').strip()
-
-	@status.setter
-	def status(self, val):
-		status_r = self.route / "status"
-		status_r.store(str(val).encode('utf-8')+b'\n')
