@@ -441,6 +441,12 @@ class Set(kcore.Context):
 		self.r_path = route
 		self.r_services = {} # name to xact
 
+	def structure(self):
+		p = [
+			('r_path', self.r_path),
+		]
+		return (p, [])
+
 	def xact_void(self, final):
 		if self.terminating:
 			self.finish_termination()
