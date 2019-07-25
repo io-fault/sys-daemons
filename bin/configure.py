@@ -153,7 +153,7 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 
 	commands.sort(key=lambda x: x[2])
 
-	head = "service [service_name] [command] ...\n\n"
+	head = "configure [service_name] [command] ...\n\n"
 
 	descr = "Modify the fault services' stored configuration. Modifications\n"
 	descr += "apply directly to disk and do not effect "
@@ -169,20 +169,24 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 		for cname, cdoc, lineno in commands
 	])
 
-	*ignored, ddir = (route / 'daemons').follow_links()
-	sl = ddir.subnodes()[0]
-	service_head = "\n\nServices [%s][%d]:\n\n\t" %(ddir.fullpath, len(sl),)
+	if route.exists():
+		*ignored, ddir = (route / 'daemons').follow_links()
+		sl = ddir.subnodes()[0]
+		service_head = "Services [%s][%d]:\n\n\t" %(ddir.fullpath, len(sl),)
 
-	abstracts = [x.load() for x in (y/'abstract.txt' for y in sl)]
-	services = [
-		(x.identifier + ('\n\t' + string.indent(ab.decode('utf-8')) if ab else ''))
-		for x, ab in zip(sl, abstracts)
-	]
-	service_list = '\n\t'.join(services) or '[None]'
+		abstracts = [x.load() for x in (y/'abstract.txt' for y in sl)]
+		services = [
+			(x.identifier + ('\n\t' + string.indent(ab.decode('utf-8')) if ab else ''))
+			for x, ab in zip(sl, abstracts)
+		]
+		service_list = '\n\t'.join(services) or '[None]'
+	else:
+		service_head = "Daemon directory has not been initialized.\n"
+		service_list = "Execute %s.setup to initialize a root daemon directory." %(__package__,)
 
 	return ''.join([
 		head, descr, command_head,
-		command_help, service_head,
+		command_help, '\n\n', service_head,
 		service_list, '\n'
 	])
 
