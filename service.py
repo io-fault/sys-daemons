@@ -158,11 +158,11 @@ class Configuration(object):
 		"""
 
 		if self.environment:
-			for x, val in self.environment.items():
+			for x, val in self.environment:
 				if val is None:
 					del os.environ[x]
 			os.environ.update([
-				x for x in self.environment.items() if x[1] is not None
+				x for x in self.environment if x[1] is not None
 			])
 
 		exe, params = self.execution()
