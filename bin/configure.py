@@ -130,19 +130,18 @@ command_map = {
 command_descriptions = {
 	'create': "Create the service directory and initialize its settings.",
 	'void': "Remove the service directory and its contents.",
-	'command': "Define the executable and its parameters for starting the service.",
 	'enable':
 		"Enable the service causing it to be started when faultd is ran.",
 	'disable':
 		"Disable the service; attempts to start afterward will fail unless forced.",
+	'command': "Define the executable and its parameters for starting the service.",
 	'env-add':
 		"Add the given settings as environment variables. (No equal sign used in assignments)",
 	'env-del':
 		"Remove the given environment variables from the service.",
 	'report': "Report the service's definition to standard error.",
-	'update': "Recreate the hardlink for root and sectors.",
 	'execute':
-		"For testing, execute the service (using exec) as if it were ran by faultd.",
+		"For testing, execute the service (using exec) as if it were ran by rootd.",
 }
 
 def menu(route, syn=command_synopsis, docs=command_descriptions):
@@ -224,6 +223,7 @@ def main(*args, fiod=None):
 		si = service.Configuration(srvdir, service_name)
 		ci = command_map[command]
 		ci(si, *params)
+		raise SystemExit(0)
 
 if __name__ == '__main__':
 	main(*sys.argv[1:])
