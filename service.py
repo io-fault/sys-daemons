@@ -59,26 +59,6 @@ class Configuration(object):
 	# Service configuration storage interface.
 	"""
 
-	def libexec(self, recreate=False, root=None):
-		"""
-		# Return the path to a hardlink for the service. Create if absent.
-		"""
-
-		r = self.route
-		led = r / "libexec"
-		exe = led / self.identifier
-
-		fp = exe.fullpath
-
-		if recreate:
-			exe.void()
-
-		if not exe.exists():
-			led.init("directory")
-			os.link(self.executable, fp)
-
-		return fp
-
 	def prepare(self):
 		"""
 		# Create the service directory.
