@@ -10,10 +10,11 @@
 import os
 import sys
 from .. import service
+from ...system import process
 
-if __name__ == '__main__':
+def main(inv:process.Invocation) -> process.Exit:
 	# Root Service Invocation; resolve the hardlink and exec() as sectord.
-	params = sys.argv[1:]
+	params = inv.args
 	os.environ['PYTHON'] = sys.executable
 
 	r = service.identify_route(*params[:1])
@@ -22,10 +23,13 @@ if __name__ == '__main__':
 	rs = service.Configuration(r, None)
 	if not rs.exists():
 		sys.stderr.write("[!# ERROR: daemon set not initialized (critical)]\n")
-		raise SystemExit(78) # EX_CONFIG
+		return inv.exit(78) # EX_CONFIG
 
 	os.environ['SERVICE_NAME'] = 'rootd'
 	rs.load()
 	rs.execute()
 
 	raise RuntimeError("program reached area after exec")
+
+if __name__ == '__main__':
+	process.control(main, process.Invocation.system())
