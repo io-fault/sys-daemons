@@ -78,6 +78,27 @@ class Configuration(object):
 
 		self.route.void()
 
+	def snapshot(self):
+		return {
+			'path': str(self.route),
+			'executable': self.executable,
+			'parameters': self.parameters,
+			'environment': self.environment,
+			'abstract': self.abstract,
+			'actuation': self.actuation,
+		}
+
+	fields = ('executable', 'parameters', 'environment', 'abstract', 'actuation')
+
+	def update(self, fm):
+		"""
+		# Overwrite configuration fields present in the given mapping, &fm.
+		# No merge logic is applied; the value in the mapping will replace the attribute value.
+		"""
+		for f in self.fields:
+			if f in fm:
+				setattr(self, f, fm[f])
+
 	def __init__(self, route:Path, identifier:str):
 		"""
 		# Initialize the Service structure selecting the &route as its
