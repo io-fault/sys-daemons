@@ -700,8 +700,6 @@ class Set(kcore.Context):
 		# to trigger a &system.process.Panic when an exception occurs.
 		"""
 
-		self.system.process.system_event_connect(('signal', 'terminate'), self, self.r_terminate)
-
 		srv = service.Configuration(self.r_path, 'rootd')
 		if service.environment not in os.environ:
 			os.environ[service.environment] = self.r_path.fullpath
@@ -733,12 +731,6 @@ class Set(kcore.Context):
 		for x in self.controller.iterprocessors():
 			if x is not self:
 				x.terminate()
-
-	def r_terminate(self):
-		from ..system import kernel
-		import signal
-		kernel.exit_by_signal(signal.SIGTERM)
-		self.controller.controller.terminate()
 
 	def r_dispatch(self, service:Service):
 		"""

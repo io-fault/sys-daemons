@@ -15,6 +15,7 @@ def main(inv:process.Invocation) -> process.Exit:
 
 	xactseq = core.Sequenced([application, wctl])
 	process = system.dispatch(inv, xactseq)
+	system.set_root_process(process)
 	system.control()
 
 if __name__ == '__main__':
