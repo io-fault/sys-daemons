@@ -18,6 +18,7 @@ import typing
 import json
 
 from ..system import execution as libexec
+from ..system import network
 from ..system.files import Path
 from ..web import http
 from ..internet import ri
@@ -232,7 +233,8 @@ class Control(kcore.Context):
 		return [(x, (), Protocol()) for x in ports]
 
 	def __init__(self, path, rootset):
-		ep = kio.endpoint('local', str(path.container), path.identifier)
+		ep = network.Endpoint.from_local(
+			(str(path.container), path.identifier), None, 'octets')
 		self.ctl_interface = ep
 		self.ctl_set = rootset
 		self.ctl_completion = {}
@@ -344,7 +346,7 @@ class Control(kcore.Context):
 		close = False
 		rs = self.ctl_set
 		rl, events = invp.inv_accept()
-		common_headers = [(b'Server', b'limiated-api-acces')]
+		common_headers = [(b'Server', b'limited-api-acces')]
 
 		# Iterate over requests.
 		for connect_output, inputctl in zip(rl, events):
