@@ -1,5 +1,5 @@
 import sys
-from .. import core as module
+from .. import service as module
 
 def test_service_routes(test):
 	tr = test.exits.enter_context(module.Path.temporary())
@@ -12,33 +12,28 @@ def test_service_routes(test):
 	for bn, r in module.service_routes(tr):
 		test/(bn in s) == True
 
-def test_Service(test):
+def test_Configuration(test):
 	tr = test.exits.enter_context(module.Path.temporary())
 	# create, store/load and check empty
 
-	srv = module.Service(tr, "test-service")
-	libs = srv.libraries = {
-		'libsomething': 'module.path.something'
-	}
-
+	srv = module.Configuration(tr, "test-service")
 	srv.store()
 	srv.load()
 
-	test/srv.libraries == libs
 	test/srv.actuates == False
 	test/srv.parameters == []
-	test/srv.environment == {}
+	test/srv.environment == []
 
 	# modify and store, then create new service to compare
 	enabled = srv.actuates = True
 	params = srv.parameters = ['--long-param', 'some', 'parameter']
 	docs = srv.abstract = "SOME DOCUMENTATION"
-	env = srv.environment = {"ENV1" : "VALUE1", "ENV2": "VALUE2"}
+	env = srv.environment = [("ENV1", "VALUE1"), ("ENV2", "VALUE2")]
 	exe = srv.executable = "/sbin/somed"
 
 	srv.store()
 
-	srv2 = module.Service(tr, "test-service")
+	srv2 = module.Configuration(tr, "test-service")
 	srv2.load()
 	test/srv2.executable == exe
 	test/srv2.environment == env
