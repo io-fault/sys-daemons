@@ -20,9 +20,11 @@ class ProcessManager(kcore.Context):
 	# Application context maintaining a pool of worker processes.
 	"""
 
-	def __init__(self, allocate, concurrency=4):
+	def __init__(self, application, update, concurrency=4):
+		self.ctl_application = application
+		self.ctl_update = update
 		self.ctl_concurrency = concurrency
-		self.ctl_allocate = allocate
+
 		self.ctl_fork_id_to_subprocess = weakref.WeakValueDictionary()
 		self.ctl_last_exit_status = {}
 
@@ -77,12 +79,9 @@ class ProcessManager(kcore.Context):
 		os.environ["SECTORS"] = str(fork_id)
 		system.__process_index__.clear()
 
-		appctx, subinit = self.ctl_allocate()
+		appctx = self.ctl_application
 		kprocess = system.dispatch(None, appctx, identifier='worker')
 		system.set_root_process(kprocess)
-
-		if subinit is not None:
-			kprocess.enqueue(subinit)
 
 		system.control()
 
