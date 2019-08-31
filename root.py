@@ -82,7 +82,7 @@ class Service(kcore.Context):
 		self.s_process = None
 
 	def actuate(self):
-		self.controller.scheduling()
+		self.sector.scheduling()
 		self.s_update()
 		self.s_last_known_time = sysclock.now()
 
@@ -144,7 +144,7 @@ class Service(kcore.Context):
 			self.s_status = 'exits'
 		else:
 			self.s_status = 'waiting'
-			self.controller.scheduler.defer(self.s_retry_wait, self.s_invoke)
+			self.sector.scheduler.defer(self.s_retry_wait, self.s_invoke)
 
 	def s_update(self):
 		"""
@@ -666,7 +666,7 @@ class Control(kcore.Context):
 		# Terminate the service and destroy its daemon directory.
 		"""
 
-		del context.controller.controller.r_services[service_id]
+		del context.sector.sector.r_services[service_id]
 		context.s_inhibit_recovery = True
 		context.s_void()
 		return "daemon directory will be destroyed after process termination"
@@ -730,7 +730,7 @@ class Set(kcore.Context):
 
 	def terminate(self):
 		self.start_termination()
-		for x in self.controller.iterprocessors():
+		for x in self.sector.iterprocessors():
 			if x is not self:
 				x.terminate()
 

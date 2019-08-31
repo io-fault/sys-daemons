@@ -92,7 +92,7 @@ class ProcessManager(kcore.Context):
 
 		self.start_termination()
 
-		for x in self.controller.subtransactions:
+		for x in self.sector.subtransactions:
 			x.terminate()
 
 		self.xact_exit_if_empty()
