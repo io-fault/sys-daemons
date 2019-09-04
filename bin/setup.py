@@ -33,8 +33,10 @@ def configure_root_service(srv):
 	ddir.init('directory')
 
 def main(inv:process.Invocation) -> process.Exit:
+	inv.imports(service.environment)
+
 	try:
-		path, = inv.args
+		path, = inv.argv
 	except ValueError:
 		path = None
 
@@ -45,4 +47,4 @@ def main(inv:process.Invocation) -> process.Exit:
 	return inv.exit(0)
 
 if __name__ == '__main__':
-	process.control(main, process.Invocation.system(environ=(service.environment,)))
+	process.control(main, process.Invocation.system())
