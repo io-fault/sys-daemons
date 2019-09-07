@@ -82,7 +82,6 @@ class Service(kcore.Context):
 		self.s_process = None
 
 	def actuate(self):
-		self.sector.scheduling()
 		self.s_update()
 		self.s_last_known_time = sysclock.now()
 
@@ -117,6 +116,7 @@ class Service(kcore.Context):
 			os.chdir(oldcwd)
 
 		return True
+	occur = s_invoke
 
 	def s_was_running(self):
 		lkt = self.s_last_known_time
@@ -144,7 +144,7 @@ class Service(kcore.Context):
 			self.s_status = 'exits'
 		else:
 			self.s_status = 'waiting'
-			self.sector.scheduler.defer(self.s_retry_wait, self.s_invoke)
+			self.system.defer(self.s_retry_wait, self)
 
 	def s_update(self):
 		"""
