@@ -1,5 +1,7 @@
 """
-# Process management daemon.
+# Service management daemon.
+
+# Usually executed using &.boot.
 """
 from ...system.files import Path
 from ...system import process

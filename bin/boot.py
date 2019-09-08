@@ -13,11 +13,12 @@ from .. import service
 from ...system import process
 
 def main(inv:process.Invocation) -> process.Exit:
+	detach = True
+
 	# Root Service Invocation; resolve the hardlink and exec() as sectord.
-	params = inv.args
 	os.environ['PYTHON'] = sys.executable
 
-	r = service.identify_route(*params[:1])
+	r = service.identify_route(*inv.argv) # One optional argument.
 	os.environ['DAEMONS'] = str(r)
 
 	rs = service.Configuration(r, None)
@@ -27,6 +28,30 @@ def main(inv:process.Invocation) -> process.Exit:
 
 	os.environ['SERVICE_NAME'] = 'rootd'
 	rs.load()
+	try:
+		rs.load_pid()
+		try:
+			os.kill(rs.pid, 0)
+			sys.stderr.write("[!# ERROR: root daemon is already running (critical)]\n")
+			return inv.exit(128)
+		except ProcessLookupError:
+			pass
+	except ValueError:
+		# Invalid pidfile
+		pass
+
+	if detach:
+		if os.fork() != 0:
+			inv.exit(0)
+
+		os.setsid()
+
+		# Replace standard error.
+		fd = os.open(str(r/'critical.log'), os.O_CREAT|os.O_APPEND|os.O_WRONLY)
+		if fd != 2:
+			os.dup2(fd, 2)
+			os.close(fd)
+
 	rs.execute()
 
 	raise RuntimeError("program reached area after exec")

@@ -23,8 +23,8 @@ from ..system import execution as libexec
 
 from ..time import sysclock
 
-environment = 'FAULT_DAEMON_DIRECTORY'
-default_route = Path.home() / '.fault' / 'rootd'
+environment = 'DAEMONS'
+default_route = Path.home() / '.rootd'
 
 def identify_route(override=None):
 	"""
@@ -119,8 +119,7 @@ class Configuration(object):
 
 	def critical(self, message):
 		"""
-		# Log a critical message. Usually used by &.bin.rootd and
-		# &.bin.sectord.
+		# Log a critical message. Usually used by &.bin.rootd.
 		"""
 
 		logfile = self.route / "critical.log"
@@ -289,7 +288,7 @@ class Configuration(object):
 
 	def load_pid(self):
 		pid_r = self.route / "pid"
-		self.pid = int(pid_r.load().decode('ascii').strip())
+		self.pid = int(pid_r.load().strip())
 
 	def store_pid(self):
 		pid_r = self.route / "pid"
