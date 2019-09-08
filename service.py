@@ -21,8 +21,6 @@ import itertools
 from ..system.files import Path
 from ..system import execution as libexec
 
-from ..time import sysclock
-
 environment = 'DAEMONS'
 default_route = Path.home() / '.rootd'
 
@@ -117,17 +115,6 @@ class Configuration(object):
 		self.abstract = None
 		self.actuation = 'disabled'
 
-	def critical(self, message):
-		"""
-		# Log a critical message. Usually used by &.bin.rootd.
-		"""
-
-		logfile = self.route / "critical.log"
-		ts = sysclock.now().select('iso')
-
-		with logfile.open('a') as f:
-			f.write('%s: %s\n' %(ts, message))
-
 	def trim(self):
 		"""
 		# Trim the critical log in the service's directory.
@@ -180,7 +167,10 @@ class Configuration(object):
 		self.prepare()
 		self.store()
 
-		self.critical("created service")
+		from ..time import sysclock
+		n = sysclock.now()
+		with open(str(self.route/'critical.log'), 'w') as f:
+			f.write("[<> service created at %s]\n" %(n.select('iso'),))
 
 	def exists(self):
 		"""

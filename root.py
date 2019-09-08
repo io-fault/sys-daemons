@@ -699,6 +699,9 @@ class Set(kcore.Context):
 				pass
 			except:
 				sys.stderr.write("[!# ERROR: could not destroy pidfile]\n")
+
+			sys.stderr.write("[<- (rootd) %s]\n" % (self.system.time().select('iso'),))
+			sys.stderr.flush()
 			self.finish_termination()
 
 	def xact_exit(self, xact):
@@ -723,7 +726,9 @@ class Set(kcore.Context):
 		srv.pid = os.getpid()
 		srv.store_pid()
 		self.root = srv
-		srv.critical("[<> started root daemon]")
+
+		sys.stderr.write("[-> (rootd) %s]\n" %(self.system.time().select('iso'),))
+		sys.stderr.flush()
 		os.chdir(srv.route.fullpath)
 
 		# root's service instance will be loaded again in boot.
