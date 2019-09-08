@@ -10,6 +10,8 @@ import sys
 
 from ...context import string
 from ...system.files import Path
+from ...system import process
+
 from .. import service
 
 def command_create(srv, *params):
@@ -148,15 +150,16 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 	commands = [
 		(cname, docs[cname], cfunc.__code__.co_firstlineno)
 		for cname, cfunc in command_map.items()
+		if cname in docs
 	]
 
 	commands.sort(key=lambda x: x[2])
 
-	head = "configure [service_name] [command] ...\n\n"
+	head = "configure [service-name] [command] ...\n\n"
 
-	descr = "Modify a service's stored configuration.\n" + \
-		"Changes apply directly to disk and do not effect " + \
-		"the running process unless signalled.\n"
+	descr = "Modify a service's stored configuration.\n" \
+		"Changes apply directly to disk and do not effect " \
+		"the running process.\n"
 
 	ctl = __package__ + '.control'
 	descr += "Use %s for interacting with a running rootd instance.\n" %(ctl,)
@@ -190,29 +193,26 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 		service_list, '\n'
 	])
 
-def main(*args, fiod=None):
+def main(inv:process.Invocation) -> process.Exit:
+	inv.imports([service.environment])
+	fiod = inv.environ.get(service.environment)
+
 	if fiod is None:
-		fiod = os.environ.get(service.environment)
-
-		if fiod is None:
-			# from builtin default
-			fiod = service.default_route
-			dsrc = 'default'
-		else:
-			# from env
-			fiod = Path.from_absolute(fiod)
-			dsrc = 'environment'
+		# from builtin default
+		fiod = service.default_route
+		dsrc = 'default'
 	else:
+		# from env
 		fiod = Path.from_absolute(fiod)
-		dsrc = 'parameter'
+		dsrc = 'environment'
 
-	if not args:
+	if not inv.argv:
 		# show help
 		sys.stderr.write(menu(fiod))
 		sys.stderr.write('\n')
 		raise SystemExit(64) # EX_USAGE
 	else:
-		service_name, *args = args
+		service_name, *args = inv.argv
 		if args:
 			command, *params = args
 		else:
@@ -226,4 +226,4 @@ def main(*args, fiod=None):
 		raise SystemExit(0)
 
 if __name__ == '__main__':
-	main(*sys.argv[1:])
+	process.control(main, process.Invocation.system())
