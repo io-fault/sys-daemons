@@ -29,7 +29,6 @@ from ..kernel import io as kio
 from ..kernel import flows as kflows
 
 from ..time import types as timetypes
-from ..time import sysclock
 
 from . import service
 
@@ -83,7 +82,7 @@ class Service(kcore.Context):
 
 	def actuate(self):
 		self.s_update()
-		self.s_last_known_time = sysclock.now()
+		self.s_last_known_time = self.system.time()
 
 		if self.s_config.actuates:
 			self.critical(self.s_invoke)
@@ -106,7 +105,7 @@ class Service(kcore.Context):
 
 			subproc = kdispatch.Subprocess.from_invocation(self.s_invocation, stderr=fd, stdout=1)
 			self.xact_dispatch(kcore.Transaction.create(subproc))
-			self.s_last_known_time = sysclock.now()
+			self.s_last_known_time = self.system.time()
 			os.close(fd)
 			self.s_process = subproc
 		except BaseException as exc:
@@ -182,7 +181,7 @@ class Service(kcore.Context):
 		if self.s_status != 'exception':
 			self.s_status = 'terminated'
 
-		self.s_exit_events.append((sysclock.now(), pid_exit))
+		self.s_exit_events.append((self.system.time(), pid_exit))
 		self.s_last_exit_status = pid_exit
 
 		if self.s_inhibit_recovery != True:
