@@ -348,7 +348,7 @@ class Control(kcore.Context):
 
 		close = False
 		rs = self.ctl_set
-		rl, events = invp.inv_accept()
+		rl, events = invp.i_accept()
 		common_headers = [(b'Server', b'limited-api-acces')]
 
 		# Iterate over requests.
