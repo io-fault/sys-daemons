@@ -1,11 +1,5 @@
 """
-# Service management daemon, &.root.Set.
-
-# By default, this executable resolves the root service from the
-# (system/environment)`FAULT_DAEMON_DIRECTORY` environment variable. A parameter
-# may be provided to override that setting and the default (system/path)`~/.fault`.
-
-# This module is intended for use with system invocation only.
+# Start the user service daemon and detach the process from the terminal device.
 """
 import os
 import sys
