@@ -233,9 +233,7 @@ class Control(kcore.Context):
 		return [(x, (), Protocol()) for x in ports]
 
 	def __init__(self, path, rootset):
-		ep = network.Endpoint.from_local(
-			(str(path.container), path.identifier), None, 'octets')
-		self.ctl_interface = ep
+		self.ctl_interface = path
 		self.ctl_set = rootset
 		self.ctl_completion = {}
 
@@ -248,7 +246,13 @@ class Control(kcore.Context):
 		ifi = kio.Interface(cxns.cxn_accept, self.prepare_http_v1)
 		self.xact_dispatch(kcore.Transaction.create(ifi))
 
-		ifi.if_install(self.system.bindings(self.ctl_interface))
+		path = self.ctl_interface
+		if path.exists():
+			os.unlink(str(path))
+
+		ep = network.Endpoint.from_local(
+			(str(path.container), path.identifier), None, 'octets')
+		ifi.if_install(self.system.bindings(ep))
 
 	def xact_exit(self, xact):
 		cb = self.ctl_completion.pop(xact.xact_context, None)
@@ -689,6 +693,12 @@ class Set(kcore.Context):
 
 	def xact_void(self, final):
 		if self.terminating:
+			try:
+				os.unlink(str(self.r_path / 'pid'))
+			except FileNotFoundError:
+				pass
+			except:
+				sys.stderr.write("[!# ERROR: could not destroy pidfile]\n")
 			self.finish_termination()
 
 	def xact_exit(self, xact):
