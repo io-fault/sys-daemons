@@ -26,11 +26,11 @@ def configure_root_service(srv):
 		home = ddir ** 3
 		ltarget = ddir
 		ddir = (home / '.daemons')
-		ltarget.link(ddir)
+		ltarget.fs_link_relative(ddir)
 	else:
 		pass
 
-	ddir.init('directory')
+	ddir.fs_mkdir()
 
 def main(inv:process.Invocation) -> process.Exit:
 	inv.imports(service.environment)

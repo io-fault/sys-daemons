@@ -64,17 +64,17 @@ class Configuration(object):
 
 		r = self.route
 
-		r.init("directory")
-		(r / 'libexec').init("directory")
+		r.fs_mkdir()
+		(r / 'libexec').fs_mkdir()
 		if_dir = (r / 'if')
-		if_dir.init("directory")
+		if_dir.fs_mkdir()
 
 	def void(self):
 		"""
 		# Destroy the service directory.
 		"""
 
-		self.route.void()
+		self.route.fs_void()
 
 	def snapshot(self):
 		return {
@@ -169,7 +169,7 @@ class Configuration(object):
 
 		from ..time import sysclock
 		n = sysclock.now()
-		with open(str(self.route/'critical.log'), 'w') as f:
+		with (self.route/'critical.log').fs_open('w') as f:
 			f.write("[<> service created at %s]\n" %(n.select('iso'),))
 
 	def exists(self):
@@ -177,7 +177,7 @@ class Configuration(object):
 		# Whether or not the service directory exists.
 		"""
 
-		return self.route.exists()
+		return self.route.fs_type() != 'void'
 
 	def isconsistent(self):
 		"""
@@ -185,18 +185,18 @@ class Configuration(object):
 		# on-disk structure for supporting a rootd Service.
 		"""
 		r = self.route
-		if not (r.is_directory() == True):
+		if not (r.fs_type() == 'directory'):
 			return False
 
 		ifr = (r / 'if')
-		if not (ifr.is_directory() == True):
+		if not (ifr.fs_type() == 'directory'):
 			return False
 
 		critlog = (r / 'critical.log')
 		actuation = (r / 'actuation.txt')
 		inv = (ifr / 'invocation.txt')
 		for f in (critlog, actuation, inv):
-			if not (f.is_regular_file() == True):
+			if not (f.fs_type() == 'data'):
 				return False
 
 		return True
@@ -222,15 +222,15 @@ class Configuration(object):
 
 	def load_abstract(self):
 		ar = self.route / "abstract.txt"
-		self.abstract = ar.load().decode('utf-8').strip() or None
+		self.abstract = ar.fs_load().decode('utf-8').strip() or None
 
 	def store_abstract(self):
 		ar = self.route / "abstract.txt"
-		ar.store(self.abstract.encode('utf-8'))
+		ar.fs_store(self.abstract.encode('utf-8'))
 
 	def load_invocation(self):
 		inv_r = self.route / "if" / "invocation.txt"
-		data = inv_r.load()
+		data = inv_r.fs_load()
 		if data:
 			env, exe, params = libexec.parse_sx_plan(data.decode('utf-8'))
 			self.executable = exe or None
@@ -243,17 +243,18 @@ class Configuration(object):
 		exe = self.executable or ''
 		params = self.parameters or []
 		data = ''.join(libexec.serialize_sx_plan((env, exe, params)))
-		inv_r.store(data.encode('utf-8'))
+
+		inv_r.fs_store(data.encode('utf-8'))
 
 	def load_actuation(self):
 		en_r = self.route / "actuation.txt"
-		text = en_r.load().decode('ascii').strip().lower()
+		text = en_r.fs_load().decode('ascii').strip().lower()
 		self.actuation = text.strip().lower()
 
 	def store_actuation(self):
 		en_r = self.route / "actuation.txt"
 		actstr = str(self.actuation).lower().encode('ascii')+b'\n'
-		en_r.store(actstr)
+		en_r.fs_store(actstr)
 
 	@property
 	def actuates(self) -> bool:
@@ -278,8 +279,8 @@ class Configuration(object):
 
 	def load_pid(self):
 		pid_r = self.route / "pid"
-		self.pid = int(pid_r.load().strip())
+		self.pid = int(pid_r.fs_load().strip())
 
 	def store_pid(self):
 		pid_r = self.route / "pid"
-		pid_r.store(str(self.pid).encode('ascii')+b'\n')
+		pid_r.fs_store(str(self.pid).encode('ascii')+b'\n')

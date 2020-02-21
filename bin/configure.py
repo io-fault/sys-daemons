@@ -38,7 +38,7 @@ def command_void(srv):
 		sys.stderr.write("service directory does not exist\n")
 		raise SystemExit(1)
 
-	srv.route.void()
+	srv.route.fs_void()
 
 def command_define(srv, *params):
 	exe, *params = params
@@ -171,8 +171,8 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 		for cname, cdoc, lineno in commands
 	])
 
-	if route.exists():
-		*ignored, ddir = (route / 'daemons').follow_links()
+	if route.fs_type() != 'void':
+		*ignored, ddir = (route / 'daemons').fs_follow_links()
 		sl = [x for x in ddir.subnodes()[0] if service.Configuration(x, x.identifier).isconsistent()]
 		service_head = "Services [%s][%d]:\n\n\t" %(ddir.fullpath, len(sl),)
 

@@ -5,7 +5,7 @@ def test_service_routes(test):
 	tr = test.exits.enter_context(module.Path.temporary())
 	for i in range(12):
 		sr = tr / ('s'+str(i))
-		sr.init("directory")
+		sr.fs_mkdir()
 
 	s = set(['s'+str(i) for i in range(12)])
 
@@ -17,6 +17,9 @@ def test_Configuration(test):
 	# create, store/load and check empty
 
 	srv = module.Configuration(tr, "test-service")
+	test/FileNotFoundError ^ srv.store
+
+	srv.create()
 	srv.store()
 	srv.load()
 
