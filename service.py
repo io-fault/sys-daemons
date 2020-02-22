@@ -46,8 +46,8 @@ def service_routes(route):
 	"""
 
 	# Only interested in directories.
-	for i in route.subnodes()[1]:
-		bn = i.basename
+	for i in route.fs_list()[0]:
+		bn = i.filename
 		yield bn, i
 
 _actuation_map = {'enabled':True, 'disabled':False, True:'enabled', False:'disabled'}
