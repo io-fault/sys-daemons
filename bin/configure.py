@@ -173,7 +173,8 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 
 	if route.fs_type() != 'void':
 		*ignored, ddir = (route / 'daemons').fs_follow_links()
-		sl = [x for x in ddir.subnodes()[0] if service.Configuration(x, x.identifier).isconsistent()]
+		subdirs = ddir.fs_iterfiles('directory')
+		sl = [x for x in subdirs if service.Configuration(x, x.identifier).isconsistent()]
 		service_head = "Services [%s][%d]:\n\n\t" %(ddir.fullpath, len(sl),)
 
 		abstracts = [x.load().strip() for x in (y/'abstract.txt' for y in sl)]

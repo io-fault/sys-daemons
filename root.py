@@ -734,7 +734,7 @@ class Set(kcore.Context):
 		# this reference will be simply dropped.
 
 		rd = self.r_daemons = self.r_path / 'daemons'
-		srv_list = rd.subnodes()[0]
+		srv_list = rd.fs_iterfiles('directory')
 		self.r_services.update(
 			(x.identifier, Service(service.Configuration(x, x.identifier)))
 			for x in srv_list
