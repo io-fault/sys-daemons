@@ -11,7 +11,7 @@
 /abstract/
 	Process management daemon and daemon support modules.
 
-/controller/
+/authority/
 	`fault.io`
 /contact/
 	&<http://fault.io/critical>
