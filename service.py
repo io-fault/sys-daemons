@@ -19,10 +19,11 @@ import sys
 import itertools
 
 from ..system.files import Path
+from ..system import query
 from ..system import execution as libexec
 
 environment = 'DAEMONS'
-default_route = Path.home() / '.rootd'
+default_route = query.home() / '.rootd'
 
 def identify_route(override=None):
 	"""
