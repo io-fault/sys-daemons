@@ -3,13 +3,13 @@
 		&<http://if.fault.io/project/information>
 
 /identifier/
-	&<http://fault.io/python/sectors>
+	&<http://fault.io/integration/daemons>
 /icon/
 	- (emoji)`📐`
 /name/
-	`sectors`
+	`daemons`
 /abstract/
-	Process management daemon and daemon support modules.
+	Process management daemon.
 
 /authority/
 	`fault.io`
