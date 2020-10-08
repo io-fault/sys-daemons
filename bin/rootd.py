@@ -3,8 +3,8 @@
 
 # Usually executed using &.boot.
 """
-from ...system.files import Path
-from ...system import process
+from fault.system.files import Path
+from fault.system import process
 
 from .. import root
 

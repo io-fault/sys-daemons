@@ -17,18 +17,18 @@ import itertools
 import typing
 import json
 
-from ..system import execution as libexec
-from ..system import network
-from ..system.files import Path
-from ..web import http
-from ..internet import ri
+from fault.system import execution as libexec
+from fault.system import network
+from fault.system.files import Path
+from fault.web import http
+from fault.internet import ri
 
-from ..kernel import core as kcore
-from ..kernel import dispatch as kdispatch
-from ..kernel import io as kio
-from ..kernel import flows as kflows
+from fault.kernel import core as kcore
+from fault.kernel import dispatch as kdispatch
+from fault.kernel import io as kio
+from fault.kernel import flows as kflows
 
-from ..time import types as timetypes
+from fault.time import types as timetypes
 
 from . import service
 

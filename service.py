@@ -18,9 +18,9 @@ import os
 import sys
 import itertools
 
-from ..system.files import Path
-from ..system import query
-from ..system import execution as libexec
+from fault.system.files import Path
+from fault.system import query
+from fault.system import execution as libexec
 
 environment = 'DAEMONS'
 default_route = query.home() / '.rootd'
@@ -168,7 +168,7 @@ class Configuration(object):
 		self.prepare()
 		self.store()
 
-		from ..time import sysclock
+		from fault.time import sysclock
 		n = sysclock.now()
 		with (self.route/'critical.log').fs_open('w') as f:
 			f.write("[<> service created at %s]\n" %(n.select('iso'),))

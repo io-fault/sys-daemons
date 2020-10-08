@@ -5,7 +5,7 @@ import os
 import sys
 import signal
 from .. import service
-from ...system import process
+from fault.system import process
 
 def main(inv:process.Invocation) -> process.Exit:
 	running = False

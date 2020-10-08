@@ -8,9 +8,9 @@
 import os
 import sys
 
-from ...context import string
-from ...system.files import Path
-from ...system import process
+from fault.context import string
+from fault.system.files import Path
+from fault.system import process
 
 from .. import service
 

@@ -53,5 +53,5 @@ def test_Configuration(test):
 
 if __name__ == '__main__':
 	import sys
-	from ...test import library as libtest
-	libtest.execute(sys.modules[__name__])
+	from fault.test import engine
+	engine.execute(sys.modules[__name__])
