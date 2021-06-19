@@ -1,3 +1,1 @@
-"""
-# Process management daemon and daemon runtime tools.
-"""
+# Project package module for supporting sys.path imports.
