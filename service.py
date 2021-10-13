@@ -58,6 +58,12 @@ class Configuration(object):
 	# Service configuration storage interface.
 	"""
 
+	def initialized(self):
+		"""
+		# Whether the service's configuration directory exists.
+		"""
+		return self.route.fs_type() == 'directory'
+
 	def prepare(self):
 		"""
 		# Create the service directory.

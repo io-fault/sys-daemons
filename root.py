@@ -246,7 +246,7 @@ class Control(kcore.Context):
 		self.xact_dispatch(kcore.Transaction.create(ifi))
 
 		path = self.ctl_interface
-		if path.exists():
+		if path.fs_type() != 'void':
 			os.unlink(str(path))
 
 		ep = network.Endpoint.from_local(
@@ -301,10 +301,9 @@ class Control(kcore.Context):
 			if s is None:
 				path = (rs.r_path/'daemons'/service_id)
 				config = service.Configuration(path, service_id)
-				if not config.route.exists():
-					created = True
+				if not config.initialized():
 					config.prepare()
-
+					created = True
 				s = Service(config)
 				rs.r_dispatch(s)
 			else:
