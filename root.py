@@ -8,7 +8,6 @@
 # line parameter. The daemon directory supplies all the necessary configuration,
 # so few options are available from system invocation.
 """
-
 import os
 import sys
 import signal

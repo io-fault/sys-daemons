@@ -13,7 +13,6 @@
 	# A &Path instance pointing to the default route
 	# relative to the user's home directory. (~/.fault)
 """
-
 import os
 import sys
 import itertools

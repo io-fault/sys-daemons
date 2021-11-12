@@ -4,7 +4,6 @@
 # Deals directly with the file system; running instances will not be explicitly signalled regarding changes.
 # Invoking without arguments displays help menu to standard error.
 """
-
 import os
 import sys
 

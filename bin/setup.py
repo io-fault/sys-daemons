@@ -3,6 +3,7 @@
 """
 from fault.system import process
 from fault.system.files import Path
+
 from .. import service
 
 def configure_root_service(srv):

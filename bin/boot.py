@@ -3,8 +3,10 @@
 """
 import os
 import sys
-from .. import service
+
 from fault.system import process
+
+from .. import service
 
 def main(inv:process.Invocation) -> process.Exit:
 	detach = True
