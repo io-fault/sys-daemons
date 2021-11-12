@@ -83,7 +83,7 @@ def command_report(srv):
 
 	envvars = ' '.join(['%s=%r' %(k, v) for k, v in srv.environment])
 	dir = srv.route.fullpath
-	docs = (srv.route / 'readme.txt').load().decode('utf-8')
+	docs = (srv.route / 'readme.txt').fs_load().decode('utf-8')
 
 	report = """
 		Service: {srv.identifier}
@@ -177,7 +177,7 @@ def menu(route, syn=command_synopsis, docs=command_descriptions):
 		sl = [x for x in subdirs if service.Configuration(x, x.identifier).isconsistent()]
 		service_head = "Services [%s][%d]:\n\n\t" %(ddir.fullpath, len(sl),)
 
-		abstracts = [x.load().strip() for x in (y/'abstract.txt' for y in sl)]
+		abstracts = [x.fs_load().strip() for x in (y/'abstract.txt' for y in sl)]
 		services = [
 			(x.identifier + ('\n\t' + string.indent(ab.decode('utf-8')) if ab else ''))
 			for x, ab in zip(sl, abstracts)
