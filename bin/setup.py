@@ -1,8 +1,7 @@
 """
-# Initialize a root daemon directory.
+# Initialize a root daemon directory for managing a set of services.
 """
 from fault.system import process
-from fault.system.files import Path
 
 from .. import service
 
@@ -15,23 +14,19 @@ def configure_root_service(srv):
 	srv.create()
 	srv.actuation = 'enabled'
 	srv.executable = 'libexec/rootd'
-	srv.parameters = [__package__+'.rootd']
+	srv.parameters = [__package__ + '.rootd']
 	srv.store()
 
 	# The services controlled by &srv
 	ddir = (srv.route / 'daemons')
 
-	# When using the default home route, ~/.daemons is used
-	# in order to avoid directory depth.
-	if srv.route is service.default_route:
-		home = ddir ** 3
-		ltarget = ddir
-		ddir = (home / '.daemons')
-		ltarget.fs_link_relative(ddir)
+	# When using the default home route, ~/.daemons is used to avoid the
+	# additional directory depth. ~/.daemons vs ~/.rootd/daemons.
+	if srv.route == service.default_route:
+		ddir.fs_link_relative(service.default_daemons)
+		service.default_daemons.fs_mkdir()
 	else:
-		pass
-
-	ddir.fs_mkdir()
+		ddir.fs_mkdir()
 
 def main(inv:process.Invocation) -> process.Exit:
 	inv.imports(service.environment)

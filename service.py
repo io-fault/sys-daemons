@@ -23,6 +23,7 @@ from fault.system import execution as libexec
 
 environment = 'DAEMONS'
 default_route = query.home() / '.rootd'
+default_daemons = default_route * '.daemons'
 
 def identify_route(override=None):
 	"""
