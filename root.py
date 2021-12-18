@@ -708,8 +708,6 @@ class Set(kcore.Context):
 	def actuate(self):
 		"""
 		# Create the faultd context if it does not exist.
-		# This is performed in actuate because it is desirable
-		# to trigger a &system.process.Panic when an exception occurs.
 		"""
 
 		srv = service.Configuration(self.r_path, 'rootd')
